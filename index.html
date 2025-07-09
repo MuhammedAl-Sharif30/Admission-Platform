@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>منصة القبول الطبي - اليمن</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <button class="header-icon-button menu-button" onclick="openSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <a href="#" class="logo" onclick="showScreen('mainScreen')">
+            <i class="fas fa-graduation-cap"></i>
+            منصة القبول
+        </a>
+        
+        <nav class="nav-links">
+            <a href="#" class="nav-link active" data-screen-id="mainScreen" onclick="showScreen('mainScreen')">
+                الرئيسية
+            </a>
+            <a href="#" class="nav-link" data-screen-id="materialsScreen" onclick="showScreen('materialsScreen')">
+                المواد الدراسية
+            </a>
+            <a href="#" class="nav-link" data-screen-id="examsOverviewScreen" onclick="showScreen('examsOverviewScreen')">
+                الامتحانات التجريبية
+            </a>
+            <a href="#" class="nav-link" onclick="openWhatsApp()">
+                تواصل معنا
+            </a>
+        </nav>
+
+        <div class="header-icons">
+            <button class="header-icon-button search-icon" onclick="alert('خاصية البحث قريباً')">
+                <i class="fas fa-search"></i>
+            </button>
+            <button class="header-icon-button profile-icon" onclick="alert('الملف الشخصي قريباً')">
+                <i class="fas fa-user-circle"></i>
+            </button>
+        </div>
+    </header>
+
+    <div id="sidebar" class="sidebar">
+        <button class="close-btn" onclick="closeSidebar()">&times;</button>
+        <div class="sidebar-links">
+            <a href="#" class="sidebar-link active" data-screen-id="mainScreen" onclick="showScreen('mainScreen'); closeSidebar();">
+                <i class="fas fa-home"></i> الرئيسية
+            </a>
+            <a href="#" class="sidebar-link" data-screen-id="materialsScreen" onclick="showScreen('materialsScreen'); closeSidebar();">
+                <i class="fas fa-book-open"></i> المواد الدراسية
+            </a>
+            <a href="#" class="sidebar-link" data-screen-id="examsOverviewScreen" onclick="showScreen('examsOverviewScreen'); closeSidebar();">
+                <i class="fas fa-pencil-alt"></i> الامتحانات التجريبية
+            </a>
+            <a href="#" class="sidebar-link" onclick="openWhatsApp(); closeSidebar();">
+                <i class="fab fa-whatsapp"></i> تواصل معنا
+            </a>
+            <hr style="border-color: rgba(255,255,255,0.2); margin: 15px 0;">
+            <button class="sidebar-icon-button" onclick="alert('خاصية البحث قريباً'); closeSidebar();">
+                <i class="fas fa-search"></i> البحث
+            </button>
+            <button class="sidebar-icon-button" onclick="alert('الملف الشخصي قريباً'); closeSidebar();">
+                <i class="fas fa-user-circle"></i> الملف الشخصي
+            </button>
+        </div>
+    </div>
+
+    <div class="overlay" onclick="closeSidebar()"></div>
+
+    <div id="mainScreen" class="screen active">
+        <section class="hero-section">
+            <div class="hero-illustration-placeholder">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <h1>بوابتك نحو مستقبل مشرق!</h1>
+            <p>استعد لاختبارات القبول في جميع الجامعات اليمنية بأسلوب فريد ومواد شاملة.</p>
+            <button class="hero-button" onclick="showScreen('examsOverviewScreen')">
+                <i class="fas fa-graduation-cap"></i> ابدأ رحلتك الآن
+            </button>
+        </section>
+
+        <section class="featured-section">
+            <h2 class="section-title">المحتوى المميز</h2>
+            <div class="cards-container">
+                <div class="card">
+                    <div class="card-image"><i class="fas fa-microscope"></i></div>
+                    <div class="card-content">
+                        <h3>أحدث اختبارات الأحياء</h3>
+                        <p>اختبر معلوماتك في الأحياء مع أحدث النماذج المحاكية لاختبارات القبول.</p>
+                        <button class="card-button" onclick="alert('سنضيف اختبارات هنا قريباً!')">ابدأ الاختبار</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-image"><i class="fas fa-flask"></i></div>
+                    <div class="card-content">
+                        <h3>مراجعات الكيمياء الشاملة</h3>
+                        <p>مراجعات مركزة ومبسطة لأهم نقاط الكيمياء التي تحتاجها للنجاح.</p>
+                        <button class="card-button" onclick="alert('سنضيف مراجعات هنا قريباً!')">تصفح المراجعات</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-image"><i class="fas fa-book-reader"></i></div>
+                    <div class="card-content">
+                        <h3>قواعد الإنجليزية للقبول</h3>
+                        <p>كل ما تحتاجه لإتقان اللغة الإنجليزية واجتياز قسم اللغة في الامتحان.</p>
+                        <button class="card-button" onclick="alert('سنضيف دروس هنا قريباً!')">تعلم الآن</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials-section">
+            <h2 class="section-title">ماذا قال طلابنا عن المنصة؟</h2>
+            <div class="testimonial-slider-container">
+                <div class="testimonial-slider" id="testimonialSlider">
+                    <div class="testimonial-card">
+                        <div class="student-info">
+                            <div class="student-avatar">
+                                <img src="https://via.placeholder.com/80/FFB300/FFFFFF?text=طالب1" alt="صورة الطالب 1">
+                            </div>
+                            <span class="student-name">محمد السقاف</span>
+                            <span class="student-university">كلية الطب - جامعة صنعاء</span>
+                        </div>
+                        <p class="quote-text">
+                            "المنصة سهلت علي الكثير في الاستعداد لاختبارات القبول. الأسئلة الشاملة والشروحات الواضحة كانت مفتاح نجاحي."
+                        </p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="student-info">
+                            <div class="student-avatar">
+                                <img src="https://via.placeholder.com/80/FFB300/FFFFFF?text=طالب2" alt="صورة الطالب 2">
+                            </div>
+                            <span class="student-name">فاطمة علي</span>
+                            <span class="student-university">كلية الصيدلة - جامعة إب</span>
+                        </div>
+                        <p class="quote-text">
+                            "لم أكن أتخيل أن الاستعداد للاختبارات سيكون بهذه المتعة والفعالية. بفضل المنصة، حققت حلمي في دخول الصيدلة!"
+                        </p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="student-info">
+                            <div class="student-avatar">
+                                <img src="https://via.placeholder.com/80/FFB300/FFFFFF?text=طالب3" alt="صورة الطالب 3">
+                            </div>
+                            <span class="student-name">أحمد الحميري</span>
+                            <span class="student-university">كلية المختبرات - جامعة ذمار</span>
+                        </div>
+                        <p class="quote-text">
+                            "الدعم المستمر والمحتوى المحدث جعلني أشعر بالثقة التامة. أوصي بها بشدة لكل من يسعى للقبول في التخصصات الطبية."
+                        </p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-nav-buttons">
+                    <button id="prevTestimonial"><i class="fas fa-chevron-right"></i></button>
+                    <button id="nextTestimonial"><i class="fas fa-chevron-left"></i></button>
+                </div>
+            </div>
+            <div class="slider-dots" id="testimonialDots">
+                </div>
+        </section>
+
+        <section class="get-started-section">
+            <h2 class="section-title">كيف تبدأ رحلتك نحو التميز؟</h2>
+            <div class="steps-container">
+                <div class="step-card">
+                    <i class="fas fa-user-plus step-icon"></i>
+                    <h3>1. سجل حسابك</h3>
+                    <p>انضم إلينا في دقائق معدودة وابدأ رحلتك التعليمية.</p>
+                </div>
+                <div class="step-card">
+                    <i class="fas fa-book-open step-icon"></i>
+                    <h3>2. استكشف المواد</h3>
+                    <p>تصفح مكتبتنا الغنية بالدروس والمراجعات لمختلف المواد.</p>
+                </div>
+                <div class="step-card">
+                    <i class="fas fa-pencil-alt step-icon"></i>
+                    <h3>3. ابدأ التدريب</h3>
+                    <p>خض الامتحانات التجريبية وحسن من أدائك باستمرار.</p>
+                </div>
+            </div>
+            <button class="hero-button" onclick="alert('صفحة التسجيل قريباً!')">
+                <i class="fas fa-arrow-left"></i> انضم إلينا الآن
+            </button>
+        </section>
+        
+    </div>
+
+    <div id="materialsScreen" class="screen">
+        <section class="featured-section">
+            <h2 class="section-title">المواد الدراسية المتاحة</h2>
+            <div class="cards-container">
+                <div class="card">
+                    <div class="card-image"><i class="fas fa-dna"></i></div>
+                    <div class="card-content">
+                        <h3>مادة الأحياء</h3>
+                        <p>شروحات مفصلة، ملخصات، وأسئلة تدريبية في جميع فصول الأحياء.</p>
+                        <button class="card-button" onclick="alert('محتوى الأحياء قيد التحضير!')">عرض المحتوى</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-image"><i class="fas fa-atom"></i></div>
+                    <div class="card-content">
+                        <h3>مادة الكيمياء</h3>
+                        <p>شروحات وافية للتفاعلات، المعادلات، والعناصر الكيميائية الهامة.</p>
+                        <button class="card-button" onclick="alert('محتوى الكيمياء قيد التحضير!')">عرض المحتوى</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-image"><i class="fas fa-language"></i></div>
+                    <div class="card-content">
+                        <h3>اللغة الإنجليزية</h3>
+                        <p>قواعد، مفردات، ونصوص تدريبية لتقوية لغتك الإنجليزية.</p>
+                        <button class="card-button" onclick="alert('محتوى الإنجليزية قيد التحضير!')">عرض المحتوى</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="examsOverviewScreen" class="screen">
+        <section class="featured-section">
+            <h2 class="section-title">اختر نوع الاختبار</h2>
+            <div class="cards-container">
+                <div class="card">
+                    <div class="card-image"><i class="fas fa-vial"></i></div>
+                    <div class="card-content">
+                        <h3>اختبارات الأحياء</h3>
+                        <p>نماذج امتحانات سابقة وأسئلة محاكية للمادة.</p>
+                        <button class="card-button" onclick="startExam('أحياء')">ابدأ اختبار الأحياء</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-image"><i class="fas fa-lightbulb"></i></div>
+                    <div class="card-content">
+                        <h3>اختبارات الكيمياء</h3>
+                        <p>تدرب على أسئلة الكيمياء من مختلف المستويات.</p>
+                        <button class="card-button" onclick="startExam('كيمياء')">ابدأ اختبار الكيمياء</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-image"><i class="fas fa-book"></i></div>
+                    <div class="card-content">
+                        <h3>اختبارات الإنجليزية</h3>
+                        <p>عزز مهاراتك في اللغة الإنجليزية مع نماذج متنوعة.</p>
+                        <button class="card-button" onclick="startExam('إنجليزي')">ابدأ اختبار الإنجليزية</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="examScreen" class="screen">
+        <button class="nav-button back-button" onclick="showScreen('examsOverviewScreen')">العودة للامتحانات</button>
+        <div class="timer-display" id="examTimer">الوقت المتبقي: 00:00</div>
+        <div class="scroll-content">
+            <div class="question-container">
+                <p class="question-text" id="questionText">سيظهر السؤال هنا.</p>
+                <div class="options-container" id="optionsContainer">
+                    </div>
+            </div>
+            
+            <div class="exam-nav-buttons">
+                <button class="action-button" onclick="prevQuestion()" style="background-color: var(--dark-primary);">السابق</button>
+                <button class="action-button" onclick="nextQuestion()" style="background-color: var(--accent-color);">التالي</button>
+                <button class="action-button" onclick="confirmEndExam()" style="background-color: #f44336;">إنهاء الاختبار</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultsScreen" class="screen">
+        <button class="nav-button back-button" onclick="showScreen('examsOverviewScreen')">العودة للامتحانات</button>
+        <div class="scroll-content">
+            <h2>نتائج الاختبار</h2>
+            <div class="result-summary">
+                <p>درجتك: <span id="scorePercentage">--</span></p>
+                <p>الإجابات الصحيحة: <span id="correctAnswersCount">--</span></p>
+                <p>الإجابات الخاطئة: <span id="incorrectAnswersCount">--</span></p>
+                <p>الأسئلة التي لم تجب عليها: <span id="unansweredQuestionsCount">--</span></p>
+            </div>
+            <h3>مراجعة الإجابات</h3>
+            <div id="reviewContainer">
+                <p>لا توجد أسئلة لمراجعتها حالياً.</p>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav-bar">
+        <a href="#" class="bottom-nav-item active" data-screen-id="mainScreen" onclick="showScreen('mainScreen')">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="#" class="bottom-nav-item" data-screen-id="materialsScreen" onclick="showScreen('materialsScreen')">
+            <i class="fas fa-book-open"></i>
+            <span>المواد</span>
+        </a>
+        <a href="#" class="bottom-nav-item" data-screen-id="examsOverviewScreen" onclick="showScreen('examsOverviewScreen')">
+            <i class="fas fa-pencil-alt"></i>
+            <span>الامتحانات</span>
+        </a>
+        <a href="#" class="bottom-nav-item" onclick="alert('ملفك الشخصي قريباً')">
+            <i class="fas fa-user-circle"></i>
+            <span>حسابي</span>
+        </a>
+    </nav>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section footer-about">
+                <a href="#" class="footer-logo" onclick="showScreen('mainScreen')">
+                    <i class="fas fa-graduation-cap"></i> منصة القبول
+                </a>
+                <p>بوابتك للنجاح في اختبارات القبول الطبية بالجامعات اليمنية. نقدم لك أفضل الأدوات والموارد لتحقيق حلمك.</p>
+            </div>
+
+            <div class="footer-section footer-links">
+                <h3>روابط سريعة</h3>
+                <ul>
+                    <li><a href="#" onclick="showScreen('mainScreen')">الرئيسية</a></li>
+                    <li><a href="#" onclick="showScreen('materialsScreen')">المواد الدراسية</a></li>
+                    <li><a href="#" onclick="showScreen('examsOverviewScreen')">الامتحانات التجريبية</a></li>
+                    <li><a href="#" onclick="openWhatsApp()">تواصل معنا</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section footer-contact">
+                <h3>تواصل معنا</h3>
+                <p><i class="fas fa-map-marker-alt"></i> إب، اليمن</p>
+                <p><i class="fas fa-phone"></i> +967 776 575 356</p>
+                <p><i class="fas fa-envelope"></i> info@acceptancetools.com</p>
+                <div class="social-icons">
+                    <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 منصة القبول. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
