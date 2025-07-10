@@ -8,10 +8,22 @@
         let examTimer;
         let timeLeft = 0;
         const EXAM_DURATION_SECONDS = 1500; // 25 دقائق لكل اختبار (يمكن تعديله)
-        const QUESTIONS_PER_EXAM = 10; // عدد الأسئلة التي ستظهر في كل اختبار (يمكن تعديله)
+
+        // لتتبع الشاشة السابقة لزر العودة
+        let previousScreenStack = [];
 
         function showScreen(screenId) { 
             console.log('Attempting to show screen:', screenId);
+            
+            // Push current active screen to stack before changing, if it's not the same screen
+            const currentActiveScreen = document.querySelector('.screen.active');
+            if (currentActiveScreen && currentActiveScreen.id !== screenId) {
+                // Avoid pushing examScreen or resultsScreen multiple times if navigating within exam
+                if (!['examScreen', 'resultsScreen'].includes(screenId) || !['examScreen', 'resultsScreen'].includes(currentActiveScreen.id)) {
+                     previousScreenStack.push(currentActiveScreen.id);
+                     console.log('Pushed to stack:', currentActiveScreen.id, 'Stack:', previousScreenStack);
+                }
+            }
             
             // إخفاء جميع الشاشات
             const screens = document.querySelectorAll('.screen');
@@ -33,11 +45,10 @@
             const navLinks = document.querySelectorAll('.header .nav-link');
             navLinks.forEach(link => {
                 link.classList.remove('active');
-                if (link.getAttribute('data-screen-id') === screenId) {
+                // خاصية: "الامتحانات التجريبية" تكون نشطة إذا كنا في أي من شاشات الامتحانات أو شاشاتها الفرعية
+                if (['examsOverviewScreen', 'subjectExamOptionsScreen', 'subjectComprehensiveExamsScreen', 'gradesSelectionScreen', 'gradeExamOptionsScreen', 'gradeComprehensiveExamScreen', 'chaptersSelectionScreen', 'chapterExamsSelectionScreen', 'examScreen', 'resultsScreen'].includes(screenId) && link.getAttribute('data-screen-id') === 'examsOverviewScreen') {
                     link.classList.add('active');
-                }
-                // خاصية: "الامتحانات التجريبية" تكون نشطة إذا كنا في أي من شاشات الامتحانات
-                if (['examsOverviewScreen', 'gradesSelectionScreen', 'chaptersSelectionScreen', 'examScreen', 'resultsScreen'].includes(screenId) && link.getAttribute('data-screen-id') === 'examsOverviewScreen') {
+                } else if (link.getAttribute('data-screen-id') === screenId) {
                     link.classList.add('active');
                 }
             });
@@ -46,11 +57,10 @@
             const bottomNavItems = document.querySelectorAll('.bottom-nav-bar .bottom-nav-item');
             bottomNavItems.forEach(item => {
                 item.classList.remove('active');
-                if (item.getAttribute('data-screen-id') === screenId) {
+                // خاصية: "الامتحانات" تكون نشطة إذا كنا في أي من شاشات الامتحانات أو شاشاتها الفرعية
+                if (['examsOverviewScreen', 'subjectExamOptionsScreen', 'subjectComprehensiveExamsScreen', 'gradesSelectionScreen', 'gradeExamOptionsScreen', 'gradeComprehensiveExamScreen', 'chaptersSelectionScreen', 'chapterExamsSelectionScreen', 'examScreen', 'resultsScreen'].includes(screenId) && item.getAttribute('data-screen-id') === 'examsOverviewScreen') {
                     item.classList.add('active');
-                }
-                // خاصية: "الامتحانات" تكون نشطة إذا كنا في أي من شاشات الامتحانات
-                if (['examsOverviewScreen', 'gradesSelectionScreen', 'chaptersSelectionScreen', 'examScreen', 'resultsScreen'].includes(screenId) && item.getAttribute('data-screen-id') === 'examsOverviewScreen') {
+                } else if (item.getAttribute('data-screen-id') === screenId) {
                     item.classList.add('active');
                 }
             });
@@ -59,15 +69,42 @@
             const sidebarLinks = document.querySelectorAll('.sidebar-link');
             sidebarLinks.forEach(link => {
                 link.classList.remove('active');
-                if (link.getAttribute('data-screen-id') === screenId) {
+                // خاصية: "الامتحانات التجريبية" تكون نشطة إذا كنا في أي من شاشات الامتحانات أو شاشاتها الفرعية
+                if (['examsOverviewScreen', 'subjectExamOptionsScreen', 'subjectComprehensiveExamsScreen', 'gradesSelectionScreen', 'gradeExamOptionsScreen', 'gradeComprehensiveExamScreen', 'chaptersSelectionScreen', 'chapterExamsSelectionScreen', 'examScreen', 'resultsScreen'].includes(screenId) && link.getAttribute('data-screen-id') === 'examsOverviewScreen') {
                     link.classList.add('active');
-                }
-                // خاصية: "الامتحانات التجريبية" تكون نشطة إذا كنا في أي من شاشات الامتحانات
-                if (['examsOverviewScreen', 'gradesSelectionScreen', 'chaptersSelectionScreen', 'examScreen', 'resultsScreen'].includes(screenId) && link.getAttribute('data-screen-id') === 'examsOverviewScreen') {
+                } else if (link.getAttribute('data-screen-id') === screenId) {
                     link.classList.add('active');
                 }
             });
         }
+
+        // دالة العودة للشاشة السابقة من الستاك
+        function showPreviousScreen() {
+            if (previousScreenStack.length > 0) {
+                const prevScreenId = previousScreenStack.pop();
+                console.log('Popped from stack:', prevScreenId, 'Stack:', previousScreenStack);
+                showScreen(prevScreenId);
+            } else {
+                // إذا لم يكن هناك شاشة سابقة في الستاك، العودة للشاشة الرئيسية
+                showScreen('mainScreen');
+            }
+        }
+
+        // دالة خاصة لزر العودة في شاشات الاختبار والنتائج، لأنها قد تكون وصلت إليها من مسارات متعددة
+        function showPreviousExamScreen() {
+            // اعتمادًا على من أين جئت إلى شاشة الاختبار، يمكنك تحديد الوجهة
+            // هذه منطق بسيط: إذا كان currentChapter موجودًا، فارجع إلى شاشة اختبارات الفصل
+            // وإلا، ارجع إلى شاشة الاختبارات الشاملة للمادة أو الصف.
+            // يمكنك تعقيد هذا المنطق أكثر إذا احتجت لتتبع المسارات بدقة أكبر.
+            if (currentChapter) {
+                showChapterExamsSelection(currentSubject, currentGrade, currentChapter);
+            } else if (currentGrade) { // إذا كنا في اختبار شامل للصف
+                showGradeComprehensiveExam(currentSubject, currentGrade);
+            } else { // إذا كنا في اختبار شامل للمادة
+                showComprehensiveExams(currentSubject);
+            }
+        }
+
 
         // --- Sidebar Logic ---
         function openSidebar() {
@@ -77,7 +114,8 @@
 
         function closeSidebar() {
             document.getElementById("sidebar").classList.remove("open");
-            document.querySelector(".overlay").classList.remove("active");
+            document.querySelector(".overlay").classList.add("active"); // Keep overlay active to dim background
+            document.querySelector(".overlay").classList.remove("active"); // Remove active class to hide it again
         }
 
         // --- WhatsApp Function ---
@@ -88,226 +126,239 @@
             window.open(whatsappUrl, '_blank'); // استخدام _blank لفتح في تبويبة جديدة
         }
 
-        // --- Exam Data Structure ---
-        // تم إعادة هيكلة بيانات الأسئلة لتشمل المستويات والفصول
-        const examData = {
+        // --- Exam Data Structures ---
+        // بيانات المواد الرئيسية لـ ExamsOverviewScreen
+        const subjectsData = {
             'أحياء': {
                 icon: 'fas fa-dna',
-                description: 'شروحات مفصلة، ملخصات، وأسئلة تدريبية في جميع فصول الأحياء.',
-                grades: {
-                    'المستوى الأول': {
-                        'الفصل الأول: الكيمياء الحيوية': [
-                            {
-                                question: "توجد صبغة الكلوروفيل في خلايا بعض الكائنات مثل ...",
-                                options: ["الفطريات", "البكتيريا", "النخيل", "البراميسيوم"],
-                                answer: "النخيل",
-                                explanation: "الكلوروفيل هي الصبغة الخضراء المسؤولة عن عملية البناء الضوئي، وتوجد بشكل أساسي في النباتات والطحالب وبعض أنواع البكتيريا. من بين الخيارات المعطاة، النخيل هو نبات ويحتوي على الكلوروفيل. الفطريات والبراميسيوم كائنات غير ذاتية التغذية لا تحتوي على الكلوروفيل. بعض أنواع البكتيريا تقوم بالبناء الضوئي لكن السؤال يركز على كائنات تحتوي الكلوروفيل بشكل عام."
-                            },
-                            {
-                                question: "تمر الخلايا المرستيمية بــ.....",
-                                options: ["جميع مراحل دورة الخلية", "بعض مراحل دورة الخلية", "طور السبات", "ليس مما سبق"],
-                                answer: "جميع مراحل دورة الخلية",
-                                explanation: "الخلايا المرستيمية هي خلايا نباتية غير متخصصة تتميز بقدرتها المستمرة على الانقسام. وللقيام بالانقسام، يجب أن تمر بجميع مراحل دورة الخلية (الطور البيني الذي يشمل G1, S, G2، والطور الانقسامي M)."
-                            },
-                            {
-                                question: "تتم تفاعلات دورة كالفن في...",
-                                options: ["السيتوبلازم", "البلاستيدات", "النواة", "الميتوكوندريا"],
-                                answer: "البلاستيدات",
-                                explanation: "دورة كالفن (التفاعلات اللاضوئية للبناء الضوئي) تتم في لحمة (Stroma) البلاستيدات الخضراء، وهي الجزء السائل داخل البلاستيدة."
-                            }
-                        ],
-                        'الفصل الثاني: التصنيف والتنوع الحيوي': [
-                            {
-                                question: "في نبات الفيوناريا يتكون من القدم وشبه الساق والعنق والعلبة",
-                                options: ["المشيج المذكر", "النسيج المؤنث", "النبات البوغي", "النبات المشيجي"],
-                                answer: "النبات البوغي",
-                                explanation: "نبات الفيوناريا (من الحزازيات) يمر بدورة حياة تتناوب فيها الأجيال. النبات البوغي (Sporophyte) هو الجيل الذي ينتج الأبواغ، ويتكون من قدم (تتصل بالنبات المشيجي)، وعنق، وعلبة (حافظة الأبواغ)."
-                            },
-                            {
-                                question: "ظاهرة تبادل الأجيال تحدث في ...",
-                                options: ["البراميسيوم", "الأميبا", "البلاناريا", "بلازموديوم الملاريا"],
-                                answer: "بلازموديوم الملاريا",
-                                explanation: "تبادل الأجيال (Alternation of Generations) هو ظاهرة تتضمن تعاقب جيل جنسي وجيل لاجنسي في دورة حياة الكائن الحي. بلازموديوم الملاريا (Plasmodium falciparum) يمتلك دورة حياة معقدة تتضمن مراحل جنسية ولاجنسية داخل مضيفين مختلفين (الإنسان والبعوض)، مما يمثل تبادل أجيال."
-                            },
-                            {
-                                question: "تتكون أصابع اليدين والقدمين والأذنين ويظهر الجنين محاطاً بأربعة أغشية في....",
-                                options: ["الثلاثة الأشهر الأولى", "الثلاثة الأشهر الثانية", "الثلاثة الأشهر الأخيرة", "الثلاثة الأسابيع الأخيرة"],
-                                answer: "الثلاثة الأشهر الأولى",
-                                explanation: "تتطور الأعضاء الرئيسية للجنين، بما في ذلك تكون أصابع اليدين والقدمين والأذنين، وتشكل الأغشية الجنينية الأربعة (الكيس الأمينوسي، الكيس المحي، المشيمة، السقاء) بشكل أساسي خلال الثلاثة أشهر الأولى من الحمل (التي تتضمن المرحلة الجنينية المبكرة)."
-                            }
-                        ]
-                    },
-                    'المستوى الثاني': {
-                        'الفصل الأول: الوراثة والجينات': [
-                            {
-                                question: "أحد الصفات الآتية لم يقم مندل بدراستها",
-                                options: ["لون الزهرة", "لون الساق", "لون البذرة", "لون القرن"],
-                                answer: "لون الساق",
-                                explanation: "قام مندل بدراسة سبع صفات في نبات البازلاء، وهي: طول الساق، شكل البذرة، لون البذرة، شكل القرن، لون القرن، لون الزهرة، وموقع الزهرة. لم يدرس 'لون الساق' كصفة مستقلة."
-                            },
-                            {
-                                question: "في الخطوة الثالثة من بناء البروتين يلتقي حمض..... مع حمض <span class='latex-math'>RNA</span> الناقل حيث يقوم الناقل بقراءة شفرته",
-                                options: ["<span class='latex-math'>mRNA</span>", "<span class='latex-math'>tRNA</span>", "<span class='latex-math'>rRNA</span>", "لا شيء مما سبق"],
-                                answer: "<span class='latex-math'>mRNA</span>",
-                                explanation: "في عملية بناء البروتين (الترجمة)، يحمل حمض <span class='latex-math'>mRNA</span> (الرنا الرسول) الشفرة الوراثية من النواة إلى الريبوسومات. حمض <span class='latex-math'>tRNA</span> (الرنا الناقل) يحمل الحمض الأميني المحدد ويقوم 'بقراءة' الشفرة الموجودة على <span class='latex-math'>mRNA</span> (عن طريق مضاد الكودون) ويلتقي به عند الريبوسوم. لذا، الـ <span class='latex-math'>tRNA</span> يلتقي مع الـ <span class='latex-math'>mRNA</span>."
-                            }
-                        ],
-                        'الفصل الثاني: فسيولوجيا النبات والحيوان': [
-                            {
-                                question: "ينطلق <span class='latex-math'>O<sub>2</sub></span> الناتج من البناء الضوئي إلى خارج النبات عن طريق ...",
-                                options: ["الثغور", "الجذور", "الأوراق", "النتح"],
-                                answer: "الثغور",
-                                explanation: "الثغور (Stomata) هي فتحات صغيرة توجد بشكل رئيسي على سطح الأوراق، تسمح بتبادل الغازات (دخول <span class='latex-math'>CO<sub>2</sub></span> وخروج <span class='latex-math'>O<sub>2</sub></span> وبخار الماء) بين النبات والغلاف الجوي."
-                            },
-                            {
-                                question: "نبات ....... يتكاثر خضرياً بواسطة نمو البراعم الجانبية في كل عين لتكوين نبات جديد.",
-                                options: ["البطاطس", "الثوم", "النخيل", "النجيل"],
-                                answer: "البطاطس",
-                                explanation: "البطاطس هي ساق درنية (Tubers) تحتوي على 'عيون' (Eyes) وهي في الواقع براعم. يمكن زراعة قطع من درنة البطاطس تحتوي على عين أو أكثر، وتنمو هذه البراعم لتشكل نباتات جديدة متطابقة وراثياً، وهذا شكل من أشكال التكاثر الخضري."
-                            }
-                        ]
-                    }
-                }
+                description: 'شروحات مفصلة، ملخصات، وأسئلة تدريبية في جميع فصول الأحياء.'
             },
             'كيمياء': {
                 icon: 'fas fa-atom',
-                description: 'شروحات وافية للتفاعلات، المعادلات، والعناصر الكيميائية الهامة.',
-                grades: {
-                    'المستوى الأول': {
-                        'الفصل الأول: أساسيات الكيمياء': [
-                            {
-                                question: "ما هو العنصر الذي يمتلك أعلى كهرسالبية في الجدول الدوري؟",
-                                options: ["الأكسجين", "النيتروجين", "الفلور", "الكلور"],
-                                answer: "الفلور",
-                                explanation: "الفلور (F) يقع في أعلى يمين الجدول الدوري (باستثناء الغازات النبيلة) ويمتلك أعلى كهرسالبية (قدرة الذرة على جذب الإلكترونات في الرابطة الكيميائية) بقيمة 3.98 على مقياس باولنغ."
-                            },
-                            {
-                                question: "ما نوع الرابطة المتكونة بين ذرة صوديوم (<span class='latex-math'>Na</span>) وذرة كلور (<span class='latex-math'>Cl</span>) في <span class='latex-math'>NaCl</span>؟",
-                                options: ["تساهمية", "أيونية", "فلزية", "هيدروجينية"],
-                                answer: "أيونية",
-                                explanation: "<span class='latex-math'>NaCl</span> (كلوريد الصوديوم) يتكون عندما تفقد ذرة الصوديوم إلكتروناً واحداً لتصبح أيوناً موجباً (<span class='latex-math'>Na<sup>+</sup></span>) وتكتسبه ذرة الكلور لتصبح أيوناً سالباً (<span class='latex-math'>Cl<sup>-</sup></span>). تجاذب الأيونات المتعاكسة الشحنة يشكل رابطة أيونية."
-                            },
-                            {
-                                question: "ما هو اسم العملية التي يتحول فيها الغاز مباشرة إلى مادة صلبة دون المرور بالحالة السائلة؟",
-                                options: ["التسامي", "التكثف", "التبخر", "الترسيب"],
-                                answer: "الترسيب",
-                                explanation: "الترسيب (Deposition) هو عملية فيزيائية يتحول فيها الغاز مباشرة إلى مادة صلبة، وهي عكس التسامي. مثال على ذلك تكون الصقيع من بخار الماء مباشرة."
-                            }
-                        ],
-                        'الفصل الثاني: الكيمياء العضوية': [
-                            {
-                                question: "أي من المركبات التالية يعتبر ألكاناً حلقياً؟",
-                                options: ["<span class='latex-math'>C<sub>6</sub>H<sub>6</sub></span>", "<span class='latex-math'>C<sub>5</sub>H<sub>10</sub></span>", "<span class='latex-math'>C<sub>2</sub>H<sub>4</sub></span>", "<span class='latex-math'>C<sub>4</sub>H<sub>10</sub></span>"],
-                                answer: "<span class='latex-math'>C<sub>5</sub>H<sub>10</sub></span>",
-                                explanation: "الألكانات الحلقية (Cycloalkanes) لها الصيغة العامة <span class='latex-math'>C<sub>n</sub>H<sub>2n</sub></span>. <span class='latex-math'>C<sub>5</sub>H<sub>10</sub></span> هي صيغة البنتان الحلقي. <span class='latex-math'>C<sub>6</sub>H<sub>6</sub></span> هو البنزين (أروماتي)، <span class='latex-math'>C<sub>2</sub>H<sub>4</sub></span> هو الإيثين (ألكين)، <span class='latex-math'>C<sub>4</sub>H<sub>10</sub></span> هو البيوتان (ألكان مفتوح السلسلة)."
-                            },
-                            {
-                                question: "كم عدد مجموعات الهيدروكسيل (<span class='latex-math'>-OH</span>) في جزيء الجلسرول (الجلسرين)؟",
-                                options: ["1", "2", "3", "4"],
-                                answer: "3",
-                                explanation: "الجلسرول هو كحول ثلاثي الهيدروكسيل، أي أنه يحتوي على ثلاث مجموعات هيدروكسيل (<span class='latex-math'>-OH</span>) مرتبطة بثلاث ذرات كربون."
-                            },
-                            {
-                                question: "أي من المواد التالية هي بوليمر طبيعي؟",
-                                options: ["البولي إيثيلين", "النايلون", "البروتين", "البولي فينيل كلوريد"],
-                                answer: "البروتين",
-                                explanation: "البروتينات هي بوليمرات حيوية طبيعية تتكون من وحدات متكررة من الأحماض الأمينية. البولي إيثيلين، النايلون، والبولي فينيل كلوريد هي بوليمرات صناعية."
-                            }
-                        ]
-                    },
-                    'المستوى الثاني': {
-                        'الفصل الأول: الكيمياء الفيزيائية': [
-                            {
-                                question: "ما هو الغاز الذي يشكل حوالي 21% من الغلاف الجوي للأرض وهو ضروري للاحتراق؟",
-                                options: ["النيتروجين", "ثاني أكسيد الكربون", "الأكسجين", "الأرجون"],
-                                answer: "الأكسجين",
-                                explanation: "الأكسجين (O<sub>2</sub>) يشكل حوالي 21% من الغلاف الجوي وهو غاز حيوي للتنفس والاحتراق."
-                            },
-                            {
-                                question: "في الخلية الجلفانية، تحدث عملية الأكسدة عند ...",
-                                options: ["الكاثود", "الأنود", "القنطرة الملحية", "الإلكتروليت"],
-                                answer: "الأنود",
-                                explanation: "في الخلية الجلفانية (الخلايا الكهروكيميائية التي تنتج طاقة كهربائية)، تحدث الأكسدة (فقدان الإلكترونات) دائماً عند الأنود (القطب السالب)."
-                            }
-                        ],
-                        'الفصل الثاني: الكيمياء التحليلية': [
-                            {
-                                question: "ما هو المنتج الرئيسي لتفاعل حمض مع قاعدة؟",
-                                options: ["غاز", "ملح", "ماء", "ملح وماء"],
-                                answer: "ملح وماء",
-                                explanation: "تفاعل التعادل بين حمض وقاعدة ينتج عنه عادةً ملح وماء. على سبيل المثال، <span class='latex-math'>HCl + NaOH &rarr; NaCl + H<sub>2</sub>O</span>."
-                            },
-                            {
-                                question: "ما هو الرقم الهيدروجيني (<span class='latex-math'>pH</span>) للمحلول المتعادل عند درجة حرارة الغرفة؟",
-                                options: ["0", "7", "14", "أقل من 7"],
-                                answer: "7",
-                                explanation: "المحلول المتعادل (مثل الماء النقي) عند درجة حرارة 25 درجة مئوية يكون له رقم هيدروجيني (<span class='latex-math'>pH</span>) يساوي 7. المحاليل الأقل من 7 تكون حمضية، والأعلى من 7 تكون قاعدية."
-                            }
-                        ]
-                    }
-                }
+                description: 'شروحات وافية للتفاعلات، المعادلات، والعناصر الكيميائية الهامة.'
             },
             'إنجليزي': {
                 icon: 'fas fa-language',
-                description: 'عزز مهاراتك في اللغة الإنجليزية مع نماذج متنوعة.',
-                grades: {
-                    'المستوى الأول': {
-                        'الفصل الأول: قواعد أساسية': [
-                            {
-                                question: "Choose the correct word to complete the sentence: 'She <span class='english'>___</span> to the store yesterday.'",
-                                options: ["<span class='english'>go</span>", "<span class='english'>goes</span>", "<span class='english'>went</span>", "<span class='english'>going</span>"],
-                                answer: "<span class='english'>went</span>",
-                                explanation: "The sentence uses 'yesterday,' indicating a past action. The past simple form of 'go' is 'went'."
-                            },
-                            {
-                                question: "What is the past participle of the verb '<span class='english'>eat</span>'?",
-                                options: ["<span class='english'>eat</span>", "<span class='english'>ate</span>", "<span class='english'>eaten</span>", "<span class='english'>eating</span>"],
-                                answer: "<span class='english'>eaten</span>",
-                                explanation: "The past participle of the irregular verb 'eat' is 'eaten'. It is often used with 'have' or 'has' in perfect tenses, e.g., 'I have eaten'."
-                            },
-                            {
-                                question: "Complete the sentence: 'If I <span class='english'>__</span> a bird, I would fly.'",
-                                options: ["<span class='english'>was</span>", "<span class='english'>were</span>", "<span class='english'>am</span>", "<span class='english'>is</span>"],
-                                answer: "<span class='english'>were</span>",
-                                explanation: "This is a second conditional sentence (hypothetical situation). In such sentences, 'were' is used for all subjects in the 'if' clause, even for singular subjects like 'I', 'he', 'she', 'it'."
-                            }
-                        ],
-                        'الفصل الثاني: مفردات وتعبيرات': [
-                            {
-                                question: "Which of these is a synonym for '<span class='english'>happy</span>'?",
-                                options: ["<span class='english'>sad</span>", "<span class='english'>joyful</span>", "<span class='english'>angry</span>", "<span class='english'>tired</span>"],
-                                answer: "<span class='english'>joyful</span>",
-                                explanation: "'Joyful' means feeling, expressing, or causing great pleasure and happiness, making it a synonym for 'happy'."
-                            },
-                            {
-                                question: "What is the plural of '<span class='english'>child</span>'?",
-                                options: ["<span class='english'>childs</span>", "<span class='english'>children</span>", "<span class='english'>childes</span>", "<span class='english'>child's</span>"],
-                                answer: "<span class='english'>children</span>",
-                                explanation: "'Children' is the irregular plural form of 'child'. Many English nouns have irregular plural forms."
-                            }
+                description: 'عزز مهاراتك في اللغة الإنجليزية مع نماذج متنوعة.'
+            }
+        };
+
+        // هيكل بيانات الاختبارات الشاملة لكل مادة
+        const comprehensiveExamsData = {
+            'أحياء': [
+                {
+                    id: 'bio_comp_1',
+                    name: 'اختبار الأحياء الشامل 1',
+                    type: 'مجاني',
+                    questions: [
+                        { question: "توجد صبغة الكلوروفيل في خلايا بعض الكائنات مثل ...", options: ["الفطريات", "البكتيريا", "النخيل", "البراميسيوم"], answer: "النخيل", explanation: "الكلوروفيل هي الصبغة الخضراء المسؤولة عن عملية البناء الضوئي، وتوجد بشكل أساسي في النباتات والطحالب وبعض أنواع البكتيريا. من بين الخيارات المعطاة، النخيل هو نبات ويحتوي على الكلوروفيل. الفطريات والبراميسيوم كائنات غير ذاتية التغذية لا تحتوي على الكلوروفيل. بعض أنواع البكتيريا تقوم بالبناء الضوئي لكن السؤال يركز على كائنات تحتوي الكلوروفيل بشكل عام." },
+                        { question: "تمر الخلايا المرستيمية بــ.....", options: ["جميع مراحل دورة الخلية", "بعض مراحل دورة الخلية", "طور السبات", "ليس مما سبق"], answer: "جميع مراحل دورة الخلية", explanation: "الخلايا المرستيمية هي خلايا نباتية غير متخصصة تتميز بقدرتها المستمرة على الانقسام. وللقيام بالانقسام، يجب أن تمر بجميع مراحل دورة الخلية (الطور البيني الذي يشمل G1, S, G2، والطور الانقسامي M)." },
+                        { question: "تتم تفاعلات دورة كالفن في...", options: ["السيتوبلازم", "البلاستيدات", "النواة", "الميتوكوندريا"], answer: "البلاستيدات", explanation: "دورة كالفن (التفاعلات اللاضوئية للبناء الضوئي) تتم في لحمة (Stroma) البلاستيدات الخضراء، وهي الجزء السائل داخل البلاستيدة." },
+                        // TODO: أضف المزيد من الأسئلة لاختبار الأحياء الشامل 1
+                    ]
+                },
+                {
+                    id: 'bio_comp_2',
+                    name: 'اختبار الأحياء الشامل 2',
+                    type: 'مدفوع',
+                    questions: [
+                        { question: "أي من التالي ليس جزءًا من الجهاز الهضمي؟", options: ["المعدة", "القلب", "الأمعاء الدقيقة", "القولون"], answer: "القلب", explanation: "القلب هو جزء من الجهاز الدوري وليس الجهاز الهضمي." },
+                        { question: "ما هو اسم العملية التي تنتج فيها النباتات الغذاء باستخدام ضوء الشمس؟", options: ["التنفس", "التخمر", "البناء الضوئي", "النتح"], answer: "البناء الضوئي", explanation: "البناء الضوئي (Photosynthesis) هي العملية التي تقوم بها النباتات والطحالب وبعض البكتيريا لتحويل الطاقة الضوئية إلى طاقة كيميائية (غذاء)." },
+                        // TODO: أضف المزيد من الأسئلة لاختبار الأحياء الشامل 2
+                    ]
+                }
+                // TODO: أضف هنا المزيد من الاختبارات الشاملة للأحياء (مجانية/مدفوعة)
+            ],
+            'كيمياء': [
+                {
+                    id: 'chem_comp_1',
+                    name: 'اختبار الكيمياء الشامل 1',
+                    type: 'مجاني',
+                    questions: [
+                        { question: "ما هو العنصر الذي يمتلك أعلى كهرسالبية في الجدول الدوري؟", options: ["الأكسجين", "النيتروجين", "الفلور", "الكلور"], answer: "الفلور", explanation: "الفلور (F) يقع في أعلى يمين الجدول الدوري (باستثناء الغازات النبيلة) ويمتلك أعلى كهرسالبية (قدرة الذرة على جذب الإلكترونات في الرابطة الكيميائية) بقيمة 3.98 على مقياس باولنغ." },
+                        { question: "ما نوع الرابطة المتكونة بين ذرة صوديوم (<span class='latex-math'>Na</span>) وذرة كلور (<span class='latex-math'>Cl</span>) في <span class='latex-math'>NaCl</span>؟", options: ["تساهمية", "أيونية", "فلزية", "هيدروجينية"], answer: "أيونية", explanation: "<span class='latex-math'>NaCl</span> (كلوريد الصوديوم) يتكون عندما تفقد ذرة الصوديوم إلكتروناً واحداً لتصبح أيوناً موجباً (<span class='latex-math'>Na<sup>+</sup></span>) وتكتسبه ذرة الكلور لتصبح أيوناً سالباً (<span class='latex-math'>Cl<sup>-</sup></span>). تجاذب الأيونات المتعاكسة الشحنة يشكل رابطة أيونية." },
+                        // TODO: أضف المزيد من الأسئلة لاختبار الكيمياء الشامل 1
+                    ]
+                }
+                // TODO: أضف هنا المزيد من الاختبارات الشاملة للكيمياء
+            ],
+            'إنجليزي': [
+                {
+                    id: 'eng_comp_1',
+                    name: 'اختبار الإنجليزية الشامل 1',
+                    type: 'مجاني',
+                    questions: [
+                        { question: "Choose the correct word: 'She <span class='english'>___</span> to school every day.'", options: ["<span class='english'>go</span>", "<span class='english'>goes</span>", "<span class='english'>went</span>", "<span class='english'>going</span>"], answer: "<span class='english'>goes</span>", explanation: "For third person singular (she, he, it) in present simple tense, we add -es or -s to the verb." },
+                        { question: "What is the opposite of '<span class='english'>hot</span>'?", options: ["<span class='english'>warm</span>", "<span class='english'>cold</span>", "<span class='english'>lukewarm</span>", "<span class='english'>boiling</span>"], answer: "<span class='english'>cold</span>", explanation: "'Cold' is the direct opposite of 'hot'." },
+                        // TODO: أضف المزيد من الأسئلة لاختبار الإنجليزية الشامل 1
+                    ]
+                }
+                // TODO: أضف هنا المزيد من الاختبارات الشاملة للإنجليزية
+            ]
+        };
+
+        // هيكل بيانات الاختبارات الشاملة لكل صف داخل كل مادة
+        const gradeComprehensiveExamsData = {
+            'أحياء': {
+                'الأول الثانوي': [
+                    {
+                        id: 'bio_grade1_comp_1',
+                        name: 'اختبار أحياء شامل 1 للأول الثانوي',
+                        type: 'مجاني',
+                        questions: [
+                            { question: "ما هو السكر الموجود في الدم؟", options: ["الفركتوز", "الجلوكوز", "السكروز", "المالتوز"], answer: "الجلوكوز", explanation: "الجلوكوز هو السكر الرئيسي في الدم ومصدر الطاقة الأساسي للخلايا." },
+                            { question: "ما هي الوحدة البنائية الأساسية للحياة؟", options: ["الجزيء", "الخلية", "النسيج", "العضو"], answer: "الخلية", explanation: "الخلية هي الوحدة التركيبية والوظيفية الأساسية لجميع الكائنات الحية." }
+                            // TODO: أضف أسئلة اختبار شامل 1 للأول الثانوي أحياء
                         ]
                     }
+                    // TODO: أضف المزيد من الاختبارات الشاملة للصف الأول الثانوي أحياء
+                ],
+                'الثاني الثانوي': [
+                    // TODO: أضف هنا اختبارات شاملة للصف الثاني الثانوي أحياء
+                ],
+                'الثالث الثانوي': [
+                    // TODO: أضف هنا اختبارات شاملة للصف الثالث الثانوي أحياء
+                ]
+            },
+            'كيمياء': {
+                'الأول الثانوي': [
+                    {
+                        id: 'chem_grade1_comp_1',
+                        name: 'اختبار كيمياء شامل 1 للأول الثانوي',
+                        type: 'مجاني',
+                        questions: [
+                            { question: "رمز الماء الكيميائي هو...", options: ["<span class='latex-math'>CO<sub>2</sub></span>", "<span class='latex-math'>H<sub>2</sub>O</span>", "<span class='latex-math'>O<sub>2</sub></span>", "<span class='latex-math'>NaCl</span>"], answer: "<span class='latex-math'>H<sub>2</sub>O</span>", explanation: "الماء يتكون من ذرتي هيدروجين وذرة أكسجين." },
+                            { question: "كم عدد البروتونات في ذرة الأكسجين (العدد الذري 8)؟", options: ["6", "8", "10", "16"], answer: "8", explanation: "العدد الذري للعنصر يمثل عدد البروتونات في نواته، وللأكسجين هو 8." }
+                            // TODO: أضف أسئلة اختبار شامل 1 للأول الثانوي كيمياء
+                        ]
+                    }
+                ],
+                'الثاني الثانوي': [],
+                'الثالث الثانوي': []
+            },
+            'إنجليزي': {
+                'الأول الثانوي': [
+                    {
+                        id: 'eng_grade1_comp_1',
+                        name: 'اختبار إنجليزي شامل 1 للأول الثانوي',
+                        type: 'مجاني',
+                        questions: [
+                            { question: "What is the plural of 'mouse'?", options: ["mouses", "mice", "mouse's", "mouse'es"], answer: "mice", explanation: "'Mice' is the irregular plural form of 'mouse'." },
+                            { question: "Choose the correct preposition: 'He is good <span class='english'>___</span> drawing.'", options: ["in", "at", "on", "for"], answer: "at", explanation: "The correct preposition to use with 'good' when referring to a skill or activity is 'at'." }
+                            // TODO: أضف أسئلة اختبار شامل 1 للأول الثانوي إنجليزي
+                        ]
+                    }
+                ],
+                'الثاني الثانوي': [],
+                'الثالث الثانوي': []
+            }
+        };
+
+        // هيكل بيانات الاختبارات حسب الفصول داخل كل صف لكل مادة
+        const examData = { // تمت إعادة تسميته ليصبح `chapterExamsData` منطقياً، لكن تركته `examData` للتوافق
+            'أحياء': {
+                'الأول الثانوي': {
+                    'الفصل الأول: الكيمياء الحيوية': [
+                        {
+                            id: 'bio_g1_c1_exam1',
+                            name: 'اختبار الفصل الأول - الكيمياء الحيوية 1',
+                            type: 'مجاني',
+                            questions: [
+                                { question: "توجد صبغة الكلوروفيل في خلايا بعض الكائنات مثل ...", options: ["الفطريات", "البكتيريا", "النخيل", "البراميسيوم"], answer: "النخيل", explanation: "الكلوروفيل هي الصبغة الخضراء المسؤولة عن عملية البناء الضوئي، وتوجد بشكل أساسي في النباتات والطحالب وبعض أنواع البكتيريا. من بين الخيارات المعطاة، النخيل هو نبات ويحتوي على الكلوروفيل. الفطريات والبراميسيوم كائنات غير ذاتية التغذية لا تحتوي على الكلوروفيل. بعض أنواع البكتيريا تقوم بالبناء الضوئي لكن السؤال يركز على كائنات تحتوي الكلوروفيل بشكل عام." },
+                                { question: "تمر الخلايا المرستيمية بــ.....", options: ["جميع مراحل دورة الخلية", "بعض مراحل دورة الخلية", "طور السبات", "ليس مما سبق"], answer: "جميع مراحل دورة الخلية", explanation: "الخلايا المرستيمية هي خلايا نباتية غير متخصصة تتميز بقدرتها المستمرة على الانقسام. وللقيام بالانقسام، يجب أن تمر بجميع مراحل دورة الخلية (الطور البيني الذي يشمل G1, S, G2، والطور الانقسامي M)." }
+                                // TODO: أضف المزيد من الأسئلة لاختبار الفصل الأول أحياء 1 ثانوي
+                            ]
+                        },
+                        {
+                            id: 'bio_g1_c1_exam2',
+                            name: 'اختبار الفصل الأول - الكيمياء الحيوية 2',
+                            type: 'مدفوع',
+                            questions: [
+                                { question: "ما هو المكون الرئيسي لجدران الخلايا النباتية؟", options: ["البروتين", "الدهون", "السليلوز", "الكايتين"], answer: "السليلوز", explanation: "السليلوز هو بوليمر كبير من الجلوكوز وهو المكون الأساسي لجدران الخلايا النباتية، مما يوفر الدعم الهيكلي." },
+                                { question: "أي من المركبات التالية هو سكر ثنائي؟", options: ["الجلوكوز", "الفركتوز", "السكروز", "النشا"], answer: "السكروز", explanation: "السكروز هو سكر ثنائي يتكون من ارتباط الجلوكوز والفركتوز. الجلوكوز والفركتوز سكريات أحادية، والنشا بوليمر عديد السكاريد." }
+                                // TODO: أضف المزيد من الأسئلة لاختبار الفصل الأول أحياء 1 ثانوي 2 (مدفوع)
+                            ]
+                        }
+                    ],
+                    'الفصل الثاني: التصنيف والتنوع الحيوي': [
+                        {
+                            id: 'bio_g1_c2_exam1',
+                            name: 'اختبار الفصل الثاني - التصنيف 1',
+                            type: 'مجاني',
+                            questions: [
+                                { question: "في نبات الفيوناريا يتكون من القدم وشبه الساق والعنق والعلبة", options: ["المشيج المذكر", "النسيج المؤنث", "النبات البوغي", "النبات المشيجي"], answer: "النبات البوغي", explanation: "نبات الفيوناريا (من الحزازيات) يمر بدورة حياة تتناوب فيها الأجيال. النبات البوغي (Sporophyte) هو الجيل الذي ينتج الأبواغ، ويتكون من قدم (تتصل بالنبات المشيجي)، وعنق، وعلبة (حافظة الأبواغ)." },
+                                { question: "ظاهرة تبادل الأجيال تحدث في ...", options: ["البراميسيوم", "الأميبا", "البلاناريا", "بلازموديوم الملاريا"], answer: "بلازموديوم الملاريا", explanation: "تبادل الأجيال (Alternation of Generations) هو ظاهرة تتضمن تعاقب جيل جنسي وجيل لاجنسي في دورة حياة الكائن الحي. بلازموديوم الملاريا (Plasmodium falciparum) يمتلك دورة حياة معقدة تتضمن مراحل جنسية ولاجنسية داخل مضيفين مختلفين (الإنسان والبعوض)، مما يمثل تبادل أجيال." }
+                                // TODO: أضف المزيد من الأسئلة لاختبار الفصل الثاني أحياء 1 ثانوي
+                            ]
+                        }
+                    ]
+                },
+                'الثاني الثانوي': {
+                    'الفصل الأول: الوراثة والجينات': [
+                        {
+                            id: 'bio_g2_c1_exam1',
+                            name: 'اختبار الوراثة والجينات 1',
+                            type: 'مجاني',
+                            questions: [
+                                { question: "أحد الصفات الآتية لم يقم مندل بدراستها", options: ["لون الزهرة", "لون الساق", "لون البذرة", "لون القرن"], answer: "لون الساق", explanation: "قام مندل بدراسة سبع صفات في نبات البازلاء، وهي: طول الساق، شكل البذرة، لون البذرة، شكل القرن، لون القرن، لون الزهرة، وموقع الزهرة. لم يدرس 'لون الساق' كصفة مستقلة." },
+                                { question: "في الخطوة الثالثة من بناء البروتين يلتقي حمض..... مع حمض <span class='latex-math'>RNA</span> الناقل حيث يقوم الناقل بقراءة شفرته", options: ["<span class='latex-math'>mRNA</span>", "<span class='latex-math'>tRNA</span>", "<span class='latex-math'>rRNA</span>", "لا شيء مما سبق"], answer: "<span class='latex-math'>mRNA</span>", explanation: "في عملية بناء البروتين (الترجمة)، يحمل حمض <span class='latex-math'>mRNA</span> (الرنا الرسول) الشفرة الوراثية من النواة إلى الريبوسومات. حمض <span class='latex-math'>tRNA</span> (الرنا الناقل) يحمل الحمض الأميني المحدد ويقوم 'بقراءة' الشفرة الموجودة على <span class='latex-math'>mRNA</span> (عن طريق مضاد الكودون) ويلتقي به عند الريبوسوم. لذا، الـ <span class='latex-math'>tRNA</span> يلتقي مع الـ <span class='latex-math'>mRNA</span>." }
+                            ]
+                        }
+                    ]
+                }
+                // TODO: أضف هنا الفصول والاختبارات للصف الثاني/الثالث الثانوي أحياء
+            },
+            'كيمياء': {
+                'الأول الثانوي': {
+                    'الفصل الأول: أساسيات الكيمياء': [
+                        {
+                            id: 'chem_g1_c1_exam1',
+                            name: 'اختبار أساسيات الكيمياء 1',
+                            type: 'مجاني',
+                            questions: [
+                                { question: "ما هو العنصر الذي يمتلك أعلى كهرسالبية في الجدول الدوري؟", options: ["الأكسجين", "النيتروجين", "الفلور", "الكلور"], answer: "الفلور", explanation: "الفلور (F) يقع في أعلى يمين الجدول الدوري (باستثناء الغازات النبيلة) ويمتلك أعلى كهرسالبية (قدرة الذرة على جذب الإلكترونات في الرابطة الكيميائية) بقيمة 3.98 على مقياس باولنغ." }
+                            ]
+                        }
+                    ]
+                }
+                // TODO: أضف هنا الفصول والاختبارات للصفوف والمواد الأخرى
+            },
+            'إنجليزي': {
+                'المستوى الأول': { // يمكن تغيير "الأول الثانوي" إلى "المستوى الأول" أو أي تسمية تفضلها
+                    'الفصل الأول: قواعد أساسية': [
+                        {
+                            id: 'eng_l1_c1_exam1',
+                            name: 'اختبار القواعد الأساسية 1',
+                            type: 'مجاني',
+                            questions: [
+                                { question: "Choose the correct word to complete the sentence: 'She <span class='english'>___</span> to the store yesterday.'", options: ["<span class='english'>go</span>", "<span class='english'>goes</span>", "<span class='english'>went</span>", "<span class='english'>going</span>"], answer: "<span class='english'>went</span>", explanation: "The sentence uses 'yesterday,' indicating a past action. The past simple form of 'go' is 'went'." }
+                            ]
+                        }
+                    ]
                 }
             }
         };
 
+
         // --- Exam Navigation Functions ---
 
+        // شاشة اختيار المواد (أحياء، كيمياء، إنجليزي)
         function showExamsOverview() {
+            previousScreenStack = []; // Reset stack when going to overview
             const container = document.getElementById('subjectCardsContainer');
-            container.innerHTML = ''; // Clear previous content
+            container.innerHTML = ''; 
 
-            for (const subjectName in examData) {
-                const subjectInfo = examData[subjectName];
+            for (const subjectName in subjectsData) {
+                const subjectInfo = subjectsData[subjectName];
                 const card = document.createElement('div');
                 card.classList.add('card');
-                card.onclick = () => showGrades(subjectName);
+                card.onclick = () => showSubjectExamOptions(subjectName); // تغيير الوجهة هنا
                 card.innerHTML = `
                     <div class="card-icon"><i class="${subjectInfo.icon}"></i></div>
                     <div class="card-content">
                         <h3 class="card-title">اختبارات ${subjectName}</h3>
                         <p class="card-description">${subjectInfo.description}</p>
-                        <button class="card-button">اختر المستوى</button>
+                        <button class="card-button">اختر</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -315,28 +366,116 @@
             showScreen('examsOverviewScreen');
         }
 
+        // شاشة خيارات الاختبار للمادة (شاملة، حسب الصف، قريباً) - NEW SCREEN
+        function showSubjectExamOptions(subject) {
+            currentSubject = subject;
+            const titleElement = document.getElementById('subjectOptionsTitle');
+            titleElement.innerText = `اختبارات ${subject}`;
+
+            const container = document.getElementById('subjectOptionsContainer');
+            container.innerHTML = '';
+
+            // الخيار 1: اختبارات شاملة للمادة
+            const comprehensiveCard = document.createElement('div');
+            comprehensiveCard.classList.add('subject-option-card', 'comprehensive');
+            comprehensiveCard.onclick = () => showComprehensiveExams(subject);
+            comprehensiveCard.innerHTML = `
+                <div class="icon-wrapper"><i class="fas fa-certificate"></i></div>
+                <h3>اختبارات ${subject} الشاملة</h3>
+                <p>اختبارات تغطي كامل المنهج للمراجعة النهائية.</p>
+                <button class="card-button" style="background-color: var(--card-color-1);">عرض الاختبارات</button>
+            `;
+            container.appendChild(comprehensiveCard);
+
+            // الخيار 2: اختبارات حسب الصف
+            const byGradeCard = document.createElement('div');
+            byGradeCard.classList.add('subject-option-card', 'by-grade');
+            byGradeCard.onclick = () => showGrades(subject); // ستؤدي إلى شاشة الصفوف
+            byGradeCard.innerHTML = `
+                <div class="icon-wrapper"><i class="fas fa-user-graduate"></i></div>
+                <h3>اختبارات ${subject} حسب الصف</h3>
+                <p>اختر صفك الدراسي لخوض الاختبارات المناسبة.</p>
+                <button class="card-button" style="background-color: var(--card-color-2);">اختر الصف</button>
+            `;
+            container.appendChild(byGradeCard);
+
+            // الخيار 3: قريباً
+            const comingSoonCard = document.createElement('div');
+            comingSoonCard.classList.add('subject-option-card', 'soon', 'disabled');
+            comingSoonCard.onclick = () => alert('هذه الخاصية قريباً جداً!'); // يمكن إزالة الـ onclick إذا كان معطلاً تماماً
+            comingSoonCard.innerHTML = `
+                <div class="icon-wrapper"><i class="fas fa-hourglass-half"></i></div>
+                <h3>قريباً...</h3>
+                <p>محتوى إضافي وميزات جديدة قادمة قريباً.</p>
+                <button class="card-button disabled" style="background-color: var(--card-color-3);">انتظرونا</button>
+            `;
+            container.appendChild(comingSoonCard);
+
+            showScreen('subjectExamOptionsScreen');
+        }
+
+        // شاشة قائمة الاختبارات الشاملة للمادة - NEW SCREEN
+        function showComprehensiveExams(subject = currentSubject) {
+            currentSubject = subject;
+            const titleElement = document.getElementById('comprehensiveExamsTitle');
+            titleElement.innerText = `اختبارات ${subject} الشاملة`;
+
+            const container = document.getElementById('comprehensiveExamsContainer');
+            container.innerHTML = '';
+
+            const exams = comprehensiveExamsData[currentSubject] || [];
+
+            if (exams.length === 0) {
+                container.innerHTML = `<p class="section-title">لا توجد اختبارات شاملة لـ ${currentSubject} حالياً.</p>`;
+                showScreen('subjectComprehensiveExamsScreen');
+                return;
+            }
+
+            exams.forEach(exam => {
+                const examCard = document.createElement('div');
+                examCard.classList.add('exam-listing-card');
+                if (exam.type === 'مدفوع') {
+                    examCard.classList.add('disabled');
+                }
+                examCard.innerHTML = `
+                    <div class="exam-listing-card-info">
+                        <h3>${exam.name}</h3>
+                        <p>عدد الأسئلة: ${exam.questions.length}</p>
+                    </div>
+                    <div class="exam-listing-card-actions">
+                        <span class="status-badge ${exam.type === 'مجاني' ? 'free' : 'paid'}">${exam.type}</span>
+                        <button class="start-button" onclick="startExam('${exam.id}', 'comprehensive')">ابدأ الاختبار</button>
+                    </div>
+                `;
+                container.appendChild(examCard);
+            });
+            showScreen('subjectComprehensiveExamsScreen');
+        }
+
+
+        // شاشة اختيار الصفوف (تسمى من "اختبارات حسب الصف")
         function showGrades(subject = currentSubject) {
             currentSubject = subject; // Save current subject
             const container = document.getElementById('gradeCardsContainer');
             container.innerHTML = ''; // Clear previous content
 
-            const subjectInfo = examData[currentSubject];
-            if (!subjectInfo || !subjectInfo.grades || Object.keys(subjectInfo.grades).length === 0) {
-                container.innerHTML = `<p>لا توجد مستويات متاحة لـ ${currentSubject} حالياً.</p>`;
+            const subjectGrades = examData[currentSubject];
+            if (!subjectGrades || Object.keys(subjectGrades).length === 0) {
+                container.innerHTML = `<p class="section-title">لا توجد مستويات متاحة لـ ${currentSubject} حالياً.</p>`;
                 showScreen('gradesSelectionScreen');
                 return;
             }
 
-            for (const gradeName in subjectInfo.grades) {
+            for (const gradeName in subjectGrades) {
                 const card = document.createElement('div');
-                card.classList.add('card');
-                card.onclick = () => showChapters(currentSubject, gradeName);
+                card.classList.add('card', 'grade-card'); // إضافة كلاس جديد grade-card
+                card.onclick = () => showGradeExamOptions(currentSubject, gradeName); // تغيير الوجهة هنا
                 card.innerHTML = `
-                    <div class="card-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <div class="card-icon"><i class="fas fa-university"></i></div>
                     <div class="card-content">
                         <h3 class="card-title">${gradeName}</h3>
                         <p class="card-description">استكشف الفصول والاختبارات المتاحة لهذا المستوى.</p>
-                        <button class="card-button">اختر الفصل</button>
+                        <button class="card-button">اختر الصف</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -344,30 +483,111 @@
             showScreen('gradesSelectionScreen');
         }
 
-        function showChapters(subject = currentSubject, grade = currentGrade) {
-            currentSubject = subject; // Save current subject
-            currentGrade = grade;     // Save current grade
-            const container = document.getElementById('chapterCardsContainer');
-            container.innerHTML = ''; // Clear previous content
+        // شاشة خيارات الاختبار للصف (شاملة، حسب الفصول) - NEW SCREEN
+        function showGradeExamOptions(subject = currentSubject, grade = currentGrade) {
+            currentSubject = subject;
+            currentGrade = grade;
+            const titleElement = document.getElementById('gradeOptionsTitle');
+            titleElement.innerText = `اختبارات ${subject} - ${grade}`;
 
-            const gradeInfo = examData[currentSubject]?.grades[currentGrade];
+            const container = document.getElementById('gradeOptionsContainer');
+            container.innerHTML = '';
+
+            // الخيار الفرعي الأول: اختبار شامل للصف
+            const comprehensiveGradeCard = document.createElement('div');
+            comprehensiveGradeCard.classList.add('grade-option-card', 'comprehensive-grade');
+            comprehensiveGradeCard.onclick = () => showGradeComprehensiveExam(subject, grade);
+            comprehensiveGradeCard.innerHTML = `
+                <div class="icon-wrapper"><i class="fas fa-award"></i></div>
+                <h3>اختبار شامل لمادة ${subject} للصف ${grade}</h3>
+                <p>اختبر معلوماتك في المنهج كاملاً لهذا الصف.</p>
+                <button class="card-button" style="background-color: var(--card-color-4);">عرض الاختبارات</button>
+            `;
+            container.appendChild(comprehensiveGradeCard);
+
+            // الخيار الفرعي الثاني: اختبارات حسب الفصول
+            const byChapterCard = document.createElement('div');
+            byChapterCard.classList.add('grade-option-card', 'by-chapter');
+            byChapterCard.onclick = () => showChapters(subject, grade); // ستؤدي إلى شاشة الفصول
+            byChapterCard.innerHTML = `
+                <div class="icon-wrapper"><i class="fas fa-book-open"></i></div>
+                <h3>اختبارات ${subject} حسب الفصول</h3>
+                <p>خوض اختبارات مركزة لكل فصل دراسي على حدة.</p>
+                <button class="card-button" style="background-color: var(--card-color-5);">اختر الفصل</button>
+            `;
+            container.appendChild(byChapterCard);
+
+            showScreen('gradeExamOptionsScreen');
+        }
+
+        // شاشة قائمة الاختبارات الشاملة للصف - NEW SCREEN
+        function showGradeComprehensiveExam(subject = currentSubject, grade = currentGrade) {
+            currentSubject = subject;
+            currentGrade = grade;
+            const titleElement = document.getElementById('gradeComprehensiveExamTitle');
+            titleElement.innerText = `اختبار شامل ${subject} للصف ${grade}`;
+
+            const container = document.getElementById('gradeComprehensiveExamContainer');
+            container.innerHTML = '';
+
+            const exams = gradeComprehensiveExamsData[currentSubject]?.[currentGrade] || [];
+
+            if (exams.length === 0) {
+                container.innerHTML = `<p class="section-title">لا توجد اختبارات شاملة لـ ${currentSubject} - ${currentGrade} حالياً.</p>`;
+                showScreen('gradeComprehensiveExamScreen');
+                return;
+            }
+
+            exams.forEach(exam => {
+                const examCard = document.createElement('div');
+                examCard.classList.add('exam-listing-card');
+                if (exam.type === 'مدفوع') {
+                    examCard.classList.add('disabled');
+                }
+                examCard.innerHTML = `
+                    <div class="exam-listing-card-info">
+                        <h3>${exam.name}</h3>
+                        <p>عدد الأسئلة: ${exam.questions.length}</p>
+                    </div>
+                    <div class="exam-listing-card-actions">
+                        <span class="status-badge ${exam.type === 'مجاني' ? 'free' : 'paid'}">${exam.type}</span>
+                        <button class="start-button" onclick="startExam('${exam.id}', 'gradeComprehensive')">ابدأ الاختبار</button>
+                    </div>
+                `;
+                container.appendChild(examCard);
+            });
+            showScreen('gradeComprehensiveExamScreen');
+        }
+
+
+        // شاشة اختيار الفصول (تسمى من "اختبارات حسب الفصول")
+        function showChapters(subject = currentSubject, grade = currentGrade) {
+            currentSubject = subject; 
+            currentGrade = grade;     
+            const titleElement = document.getElementById('chaptersSelectionTitle');
+            titleElement.innerText = `اختر الفصل الدراسي لـ ${currentSubject} - ${currentGrade}`;
+
+            const container = document.getElementById('chapterCardsContainer');
+            container.innerHTML = ''; 
+
+            const gradeInfo = examData[currentSubject]?.[currentGrade];
             if (!gradeInfo || Object.keys(gradeInfo).length === 0) {
-                container.innerHTML = `<p>لا توجد فصول متاحة لـ ${currentSubject} - ${currentGrade} حالياً.</p>`;
+                container.innerHTML = `<p class="section-title">لا توجد فصول متاحة لـ ${currentSubject} - ${currentGrade} حالياً.</p>`;
                 showScreen('chaptersSelectionScreen');
                 return;
             }
 
             for (const chapterName in gradeInfo) {
-                const questionsInChapter = gradeInfo[chapterName].length;
+                const examsInChapter = gradeInfo[chapterName].length;
                 const card = document.createElement('div');
                 card.classList.add('card');
-                card.onclick = () => startActualExam(currentSubject, currentGrade, chapterName);
+                card.onclick = () => showChapterExamsSelection(currentSubject, currentGrade, chapterName); // تغيير الوجهة هنا
                 card.innerHTML = `
                     <div class="card-icon"><i class="fas fa-book"></i></div>
                     <div class="card-content">
                         <h3 class="card-title">${chapterName}</h3>
-                        <p class="card-description">يحتوي هذا الفصل على ${questionsInChapter} سؤال. ستبدأ الاختبار بـ ${QUESTIONS_PER_EXAM} أسئلة عشوائية.</p>
-                        <button class="card-button">ابدأ الاختبار (${QUESTIONS_PER_EXAM} أسئلة)</button>
+                        <p class="card-description">يحتوي هذا الفصل على ${examsInChapter} اختبار.</p>
+                        <button class="card-button">عرض الاختبارات</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -375,28 +595,81 @@
             showScreen('chaptersSelectionScreen');
         }
 
-        // دالة بدء الاختبار الفعلي
-        function startActualExam(subject, grade, chapter) {
+        // شاشة قائمة الاختبارات المتاحة للفصل - NEW SCREEN
+        function showChapterExamsSelection(subject = currentSubject, grade = currentGrade, chapter = currentChapter) {
             currentSubject = subject;
             currentGrade = grade;
             currentChapter = chapter;
+            const titleElement = document.getElementById('chapterExamsTitle');
+            titleElement.innerText = `اختبارات ${currentChapter}`;
 
-            // الحصول على أسئلة الفصل المحدد
-            let chapterQuestions = examData[currentSubject]?.grades[currentGrade]?.[currentChapter] || [];
-            
-            if (chapterQuestions.length === 0) {
-                alert('لا توجد أسئلة لهذا الفصل حالياً.');
-                showChapters(currentSubject, currentGrade); // العودة لشاشة الفصول
+            const container = document.getElementById('chapterExamsContainer');
+            container.innerHTML = '';
+
+            const chapterExams = examData[currentSubject]?.[currentGrade]?.[currentChapter] || [];
+
+            if (chapterExams.length === 0) {
+                container.innerHTML = `<p class="section-title">لا توجد اختبارات متاحة في فصل ${currentChapter} حالياً.</p>`;
+                showScreen('chapterExamsSelectionScreen');
                 return;
             }
 
-            // خلط الأسئلة واختيار عدد محدد منها
-            chapterQuestions.sort(() => Math.random() - 0.5);
-            activeQuestions = chapterQuestions.slice(0, QUESTIONS_PER_EXAM);
+            chapterExams.forEach(exam => {
+                const examCard = document.createElement('div');
+                examCard.classList.add('exam-listing-card');
+                if (exam.type === 'مدفوع') {
+                    examCard.classList.add('disabled');
+                }
+                examCard.innerHTML = `
+                    <div class="exam-listing-card-info">
+                        <h3>${exam.name}</h3>
+                        <p>عدد الأسئلة: ${exam.questions.length}</p>
+                    </div>
+                    <div class="exam-listing-card-actions">
+                        <span class="status-badge ${exam.type === 'مجاني' ? 'free' : 'paid'}">${exam.type}</span>
+                        <button class="start-button" onclick="startExam('${exam.id}', 'chapter')">ابدأ الاختبار</button>
+                    </div>
+                `;
+                container.appendChild(examCard);
+            });
+            showScreen('chapterExamsSelectionScreen');
+        }
+
+
+        // دالة بدء الاختبار الفعلي (تم تعديلها لتقبل نوع الاختبار)
+        function startExam(examId, examType) {
+            let questionsToLoad = [];
+
+            if (examType === 'comprehensive') {
+                const subjectExams = comprehensiveExamsData[currentSubject];
+                const exam = subjectExams ? subjectExams.find(e => e.id === examId) : null;
+                questionsToLoad = exam ? exam.questions : [];
+                currentChapter = null; // للتأكد من أن زر العودة يعمل بشكل صحيح
+                currentGrade = null; // للتأكد من أن زر العودة يعمل بشكل صحيح
+            } else if (examType === 'gradeComprehensive') {
+                const gradeExams = gradeComprehensiveExamsData[currentSubject]?.[currentGrade];
+                const exam = gradeExams ? gradeExams.find(e => e.id === examId) : null;
+                questionsToLoad = exam ? exam.questions : [];
+                currentChapter = null; // للتأكد من أن زر العودة يعمل بشكل صحيح
+            } else if (examType === 'chapter') {
+                const chapterExams = examData[currentSubject]?.[currentGrade]?.[currentChapter];
+                const exam = chapterExams ? chapterExams.find(e => e.id === examId) : null;
+                questionsToLoad = exam ? exam.questions : [];
+            }
+            
+            if (questionsToLoad.length === 0) {
+                alert('لا توجد أسئلة لهذا الاختبار حالياً.');
+                return;
+            }
+
+            // Shuffle questions and select a fixed number (optional, if you want to limit questions)
+            // If you want ALL questions in the selected exam, remove .slice(0, QUESTIONS_PER_EXAM);
+            questionsToLoad.sort(() => Math.random() - 0.5); 
+            // activeQuestions = questionsToLoad.slice(0, QUESTIONS_PER_EXAM); // لو أردت تحديد عدد معين من الأسئلة لكل اختبار
+            activeQuestions = questionsToLoad; // لعرض جميع الأسئلة في الاختبار المحدد
 
             if (activeQuestions.length === 0) {
-                alert('عذراً، لم يتم العثور على أسئلة كافية لبدء الاختبار بهذا العدد المحدد.');
-                showChapters(currentSubject, currentGrade); // العودة لشاشة الفصول
+                alert('عذراً، لم يتم العثور على أسئلة كافية لبدء الاختبار.');
                 return;
             }
 
@@ -408,6 +681,7 @@
             loadQuestion();
             startTimer();
         }
+
 
         // دالة تحميل السؤال الحالي
         function loadQuestion() {
