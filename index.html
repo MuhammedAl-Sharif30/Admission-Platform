@@ -96,7 +96,7 @@
                     <div class="card-content">
                         <h3>أحدث اختبارات الأحياء</h3>
                         <p>اختبر معلوماتك في الأحياء مع أحدث النماذج المحاكية لاختبارات القبول.</p>
-                        <button class="card-button" onclick="showChapters('أحياء', 'المستوى الأول');">ابدأ الاختبار</button>
+                        <button class="card-button" onclick="showSubjectExamOptions('أحياء');">ابدأ الاختبار</button>
                     </div>
                 </div>
                 <div class="card">
@@ -161,8 +161,26 @@
         </section>
     </div>
 
-    <div id="gradesSelectionScreen" class="screen">
+    <div id="subjectExamOptionsScreen" class="screen">
         <button class="nav-button back-button" onclick="showExamsOverview()">العودة للمواد</button>
+        <section class="selection-section">
+            <h2 class="section-title" id="subjectOptionsTitle">اختبارات [اسم المادة]</h2>
+            <div class="cards-container" id="subjectOptionsContainer">
+                </div>
+        </section>
+    </div>
+
+    <div id="subjectComprehensiveExamsScreen" class="screen">
+        <button class="nav-button back-button" onclick="showSubjectExamOptions(currentSubject)">العودة لخيارات المادة</button>
+        <section class="selection-section">
+            <h2 class="section-title" id="comprehensiveExamsTitle">اختبارات [اسم المادة] الشاملة</h2>
+            <div class="cards-container" id="comprehensiveExamsContainer">
+                </div>
+        </section>
+    </div>
+
+    <div id="gradesSelectionScreen" class="screen">
+        <button class="nav-button back-button" onclick="showSubjectExamOptions(currentSubject)">العودة لخيارات المادة</button>
         <section class="selection-section">
             <h2 class="section-title">اختر المستوى الدراسي</h2>
             <div class="cards-container" id="gradeCardsContainer">
@@ -170,17 +188,44 @@
         </section>
     </div>
 
-    <div id="chaptersSelectionScreen" class="screen">
-        <button class="nav-button back-button" onclick="showGrades()">العودة للمستويات</button>
+    <div id="gradeExamOptionsScreen" class="screen">
+        <button class="nav-button back-button" onclick="showGrades(currentSubject)">العودة للصفوف</button>
         <section class="selection-section">
-            <h2 class="section-title">اختر الفصل الدراسي</h2>
+            <h2 class="section-title" id="gradeOptionsTitle">اختبارات [اسم المادة] - [اسم الصف]</h2>
+            <div class="cards-container" id="gradeOptionsContainer">
+                </div>
+        </section>
+    </div>
+
+    <div id="gradeComprehensiveExamScreen" class="screen">
+        <button class="nav-button back-button" onclick="showGradeExamOptions(currentSubject, currentGrade)">العودة لخيارات الصف</button>
+        <section class="selection-section">
+            <h2 class="section-title" id="gradeComprehensiveExamTitle">اختبار شامل [اسم المادة] للصف [اسم الصف]</h2>
+            <div class="cards-container" id="gradeComprehensiveExamContainer">
+                </div>
+        </section>
+    </div>
+
+    <div id="chaptersSelectionScreen" class="screen">
+        <button class="nav-button back-button" onclick="showGradeExamOptions(currentSubject, currentGrade)">العودة لخيارات الصف</button>
+        <section class="selection-section">
+            <h2 class="section-title" id="chaptersSelectionTitle">اختر الفصل الدراسي</h2>
             <div class="cards-container" id="chapterCardsContainer">
                 </div>
         </section>
     </div>
 
+    <div id="chapterExamsSelectionScreen" class="screen">
+        <button class="nav-button back-button" onclick="showChapters(currentSubject, currentGrade)">العودة للفصول</button>
+        <section class="selection-section">
+            <h2 class="section-title" id="chapterExamsTitle">اختبارات [اسم الفصل]</h2>
+            <div class="cards-container" id="chapterExamsContainer">
+                </div>
+        </section>
+    </div>
+
     <div id="examScreen" class="screen">
-        <button class="nav-button back-button" onclick="showChapters()">العودة للفصول</button>
+        <button class="nav-button back-button" onclick="showPreviousExamScreen()">العودة</button>
         <div class="timer-display" id="examTimer">الوقت المتبقي: 00:00</div>
         <div class="scroll-content">
             <div class="question-container">
@@ -198,7 +243,7 @@
     </div>
 
     <div id="resultsScreen" class="screen">
-        <button class="nav-button back-button" onclick="showChapters()">العودة للفصول</button>
+        <button class="nav-button back-button" onclick="showPreviousExamScreen()">العودة</button>
         <div class="scroll-content">
             <h2>نتائج الاختبار</h2>
             <div class="result-summary">
