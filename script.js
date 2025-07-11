@@ -639,6 +639,8 @@
         // دالة بدء الاختبار الفعلي (تم تعديلها لتقبل نوع الاختبار)
         function startExam(examId, examType) {
             let questionsToLoad = [];
+            let exam = null;
+        
 
             if (examType === 'comprehensive') {
                 const subjectExams = comprehensiveExamsData[currentSubject];
@@ -656,7 +658,7 @@
                 const exam = chapterExams ? chapterExams.find(e => e.id === examId) : null;
                 questionsToLoad = exam ? exam.questions : [];
             }
-            
+            if (exam && exam.type === 'مدفوع') { alert('.عذرا ، هذا الاختبار مدفوع. يرجى الاشتراك للوصول الية);return;}
             if (questionsToLoad.length === 0) {
                 alert('لا توجد أسئلة لهذا الاختبار حالياً.');
                 return;
